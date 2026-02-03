@@ -1,0 +1,28 @@
+name: llm_client
+description: LLM client for OpenRouter API
+version: 1.0.0
+publish_to: none
+
+environment:
+  sdk: ">=3.9.2 <4.0.0"
+  flutter: ">=3.35.3 <4.0.0"
+
+resolution: workspace
+
+dependencies:
+  flutter:
+    sdk: flutter
+  rest_client:
+    path: ../rest_client
+  logger:
+    path: ../logger
+  meta: ^1.17.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  mockito: ^5.5.1
+  build_runner: ^2.5.3
+
+flutter:
+  uses-material-design: true

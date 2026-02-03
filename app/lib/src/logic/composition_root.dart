@@ -1,11 +1,16 @@
 import 'package:clock/clock.dart';
-import 'package:error_reporter/error_reporter.dart';
+import 'package:filesystem_storage/filesystem_storage.dart';
+import 'package:global_experts/global_experts.dart';
+import 'package:llm_client/llm_client.dart';
 import 'package:logger/logger.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:rest_client/rest_client.dart';
+import 'package:rooms/rooms.dart';
+import 'package:session_scheduler/session_scheduler.dart';
 import 'package:settings/settings.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:sizzle_starter/src/model/application_config.dart';
-import 'package:sizzle_starter/src/model/dependencies_container.dart';
+import 'package:whiteboard_planner/src/model/application_config.dart';
+import 'package:whiteboard_planner/src/model/dependencies_container.dart';
 
 /// A place where Application-Wide dependencies are initialized.
 ///
@@ -15,14 +20,13 @@ import 'package:sizzle_starter/src/model/dependencies_container.dart';
 Future<CompositionResult> composeDependencies({
   required ApplicationConfig config,
   required Logger logger,
-  required ErrorReporter errorReporter,
 }) async {
   final stopwatch = clock.stopwatch()..start();
 
   logger.info('Initializing dependencies...');
 
   // Create the dependencies container using functions.
-  final dependencies = await createDependenciesContainer(config, logger, errorReporter);
+  final dependencies = await createDependenciesContainer(config, logger);
 
   stopwatch.stop();
   logger.info('Dependencies initialized successfully in ${stopwatch.elapsedMilliseconds} ms.');
@@ -51,7 +55,6 @@ final class CompositionResult {
 Future<DependenciesContainer> createDependenciesContainer(
   ApplicationConfig config,
   Logger logger,
-  ErrorReporter errorReporter,
 ) async {
   // Create or obtain the shared preferences instance.
   final sharedPreferences = SharedPreferencesAsync();
@@ -60,12 +63,62 @@ Future<DependenciesContainer> createDependenciesContainer(
   final packageInfo = await PackageInfo.fromPlatform();
   final settingsContainer = await SettingsContainer.create(sharedPreferences: sharedPreferences);
 
+  // FASE 1: Filesystem Storage
+  final pathResolver = await PathResolver.initialize();
+  final filesystemStorage = IOFilesystemStorage(
+    pathResolver: pathResolver,
+    logger: logger,
+  );
+
+  // Ensure base directory exists (required for first run)
+  await filesystemStorage.ensureDirectory('');
+
+  // FASE 1: LLM Client
+  final restClient = RestClientHttp(
+    baseUrl: 'https://openrouter.ai/api/v1',
+  );
+
+  // Get LLM settings from settings container (defaults for now)
+  const llmSettings = LLMSettings();
+
+  final llmClient = OpenRouterClient(
+    restClient: restClient,
+    settings: llmSettings,
+    logger: logger,
+  );
+
+  // FASE 1: Request Semaphore (singleton global)
+  final requestSemaphore = RequestSemaphore(
+    maxConcurrent: llmSettings.maxConcurrentRequests,
+  );
+
+  // FASE 2: Global Experts
+  final globalExpertDataSource = GlobalExpertFilesystemDataSource(
+    storage: filesystemStorage,
+  );
+  final globalExpertRepository = GlobalExpertRepositoryImpl(
+    localDataSource: globalExpertDataSource,
+  );
+
+  // FASE 3: Rooms
+  final roomDataSource = RoomFilesystemDataSource(
+    storage: filesystemStorage,
+  );
+  final roomRepository = RoomRepositoryImpl(
+    localDataSource: roomDataSource,
+  );
+
   return DependenciesContainer(
     logger: logger,
     config: config,
-    errorReporter: errorReporter,
     packageInfo: packageInfo,
     settingsContainer: settingsContainer,
+    pathResolver: pathResolver,
+    filesystemStorage: filesystemStorage,
+    llmClient: llmClient,
+    requestSemaphore: requestSemaphore,
+    globalExpertRepository: globalExpertRepository,
+    roomRepository: roomRepository,
   );
 }
 
@@ -78,18 +131,4 @@ Logger createAppLogger({List<LogObserver> observers = const []}) {
   }
 
   return logger;
-}
-
-/// Creates the [ErrorReporter] instance and initializes it if needed.
-Future<ErrorReporter> createErrorReporter(ApplicationConfig config) async {
-  final errorReporter = SentryErrorReporter(
-    sentryDsn: config.sentryDsn,
-    environment: config.environment.value,
-  );
-
-  if (config.sentryDsn.isNotEmpty) {
-    await errorReporter.initialize();
-  }
-
-  return errorReporter;
 }

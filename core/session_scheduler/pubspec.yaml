@@ -1,0 +1,28 @@
+name: session_scheduler
+description: Session scheduler for LLM turn-based orchestration
+version: 1.0.0
+publish_to: none
+
+environment:
+  sdk: ">=3.9.2 <4.0.0"
+  flutter: ">=3.35.3 <4.0.0"
+
+resolution: workspace
+
+dependencies:
+  flutter:
+    sdk: flutter
+  llm_client:
+    path: ../llm_client
+  filesystem_storage:
+    path: ../filesystem_storage
+  logger:
+    path: ../logger
+  meta: ^1.17.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  uses-material-design: true

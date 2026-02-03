@@ -1,4 +1,4 @@
-import 'package:sizzle_starter/src/model/environment.dart';
+import 'package:whiteboard_planner/src/model/environment.dart';
 
 /// Application configuration
 class ApplicationConfig {
@@ -17,12 +17,6 @@ class ApplicationConfig {
 
     return Environment.from(env);
   }
-
-  /// The Sentry DSN.
-  String get sentryDsn => const String.fromEnvironment('SENTRY_DSN').trim();
-
-  /// Whether Sentry is enabled.
-  bool get enableSentry => sentryDsn.isNotEmpty;
 }
 
 /// A special version of [ApplicationConfig] that is used in tests.

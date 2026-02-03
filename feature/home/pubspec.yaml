@@ -12,6 +12,10 @@ dependencies:
   flutter:
     sdk: flutter
   flutter_bloc: ^9.1.1
+  global_experts:
+    path: ../global_experts
+  rooms:
+    path: ../rooms
   settings:
     path: ../settings
   ui_library:

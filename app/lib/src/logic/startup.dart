@@ -1,25 +1,22 @@
 import 'dart:async';
 
-import 'package:error_reporter/error_reporter.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:logger/logger.dart';
-import 'package:sizzle_starter/src/bloc/app_bloc_observer.dart';
-import 'package:sizzle_starter/src/bloc/bloc_transformer.dart';
-import 'package:sizzle_starter/src/logic/composition_root.dart';
-import 'package:sizzle_starter/src/model/application_config.dart';
-import 'package:sizzle_starter/src/widget/initialization_failed_app.dart';
-import 'package:sizzle_starter/src/widget/root_context.dart';
+import 'package:whiteboard_planner/src/bloc/app_bloc_observer.dart';
+import 'package:whiteboard_planner/src/bloc/bloc_transformer.dart';
+import 'package:whiteboard_planner/src/logic/composition_root.dart';
+import 'package:whiteboard_planner/src/model/application_config.dart';
+import 'package:whiteboard_planner/src/widget/initialization_failed_app.dart';
+import 'package:whiteboard_planner/src/widget/root_context.dart';
 
 /// Initializes dependencies and runs app
 Future<void> startup() async {
   const config = ApplicationConfig();
-  final errorReporter = await createErrorReporter(config);
 
   final logger = createAppLogger(
     observers: [
-      ErrorReporterLogObserver(errorReporter),
       if (!kReleaseMode) const PrintingLogObserver(logLevel: LogLevel.trace),
     ],
   );
@@ -42,7 +39,6 @@ Future<void> startup() async {
           final compositionResult = await composeDependencies(
             config: config,
             logger: logger,
-            errorReporter: errorReporter,
           );
 
           runApp(RootContext(compositionResult: compositionResult));

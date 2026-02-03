@@ -1,0 +1,25 @@
+name: filesystem_storage
+description: Filesystem storage abstraction for Whiteboard Planner
+version: 1.0.0
+publish_to: none
+
+environment:
+  sdk: ">=3.9.2 <4.0.0"
+  flutter: ">=3.35.3 <4.0.0"
+
+resolution: workspace
+
+dependencies:
+  flutter:
+    sdk: flutter
+  path_provider: ^2.1.2
+  path: ^1.9.0
+  logger:
+    path: ../logger
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  uses-material-design: true

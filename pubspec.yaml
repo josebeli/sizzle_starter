@@ -12,12 +12,14 @@ workspace:
   - app
   # Core
   - core/common
-  - core/analytics
   - core/logger
   - core/rest_client
-  - core/error_reporter
   - core/ui_library
-  - core/database
+  - core/filesystem_storage
+  - core/llm_client
+  - core/session_scheduler
   # Feature
   - feature/settings
   - feature/home
+  - feature/global_experts
+  - feature/rooms

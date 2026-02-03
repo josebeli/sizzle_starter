@@ -1,5 +1,5 @@
-name: sizzle_starter
-description: Production-ready template for Flutter applications.
+name: whiteboard_planner
+description: Multiplataform app for orchestrating multiple LLMs in collaborative planning sessions.
 publish_to: "none"
 version: 0.0.1+1
 resolution: workspace
@@ -28,22 +28,28 @@ dependencies:
   # Core
   rest_client:
     path: ../core/rest_client
-  database:
-    path: ../core/database
   logger:
     path: ../core/logger
-  error_reporter:
-    path: ../core/error_reporter
   common:
     path: ../core/common
   ui_library:
     path: ../core/ui_library
+  filesystem_storage:
+    path: ../core/filesystem_storage
+  llm_client:
+    path: ../core/llm_client
+  session_scheduler:
+    path: ../core/session_scheduler
 
   # Features
   settings:
     path: ../feature/settings
   home:
     path: ../feature/home
+  global_experts:
+    path: ../feature/global_experts
+  rooms:
+    path: ../feature/rooms
 
 dev_dependencies:
   # Testing
